@@ -10,7 +10,7 @@ provider "aws" {
 variable "mongo_user"  {
   description = "mongodb user name"
   type = string
-  default = ""
+  default = "mongodb"
 }
 
 variable "mongo_pass"  {
