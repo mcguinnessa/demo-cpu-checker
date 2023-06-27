@@ -43,6 +43,7 @@ variable "docker_sha"  {
 #  name = "mongo-wrapper-cluster" # Naming the cluster
 #}
 
+#      "image_digest": "${var.docker_sha}",
 #      "image": "${aws_ecr_repository.my_first_ecr_repo.repository_url}",
 resource "aws_ecs_task_definition" "cpuchecker_task" {
   family                   = "cpuchecker-task" # Naming our first task
@@ -50,8 +51,7 @@ resource "aws_ecs_task_definition" "cpuchecker_task" {
   [
     {
       "name": "cpu-checker-task",
-      "image": "mcguinnessa/demo-cpu-checker",
-      "image_digest": "${var.docker_sha}",
+      "image": "mcguinnessa/demo-cpu-checker@${var.docker_sha}",
       "essential": true,
       "memory": 512,
       "cpu": 256,
