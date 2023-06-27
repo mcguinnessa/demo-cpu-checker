@@ -25,6 +25,11 @@ variable "mongo_url"  {
   default = ""
 }
 
+variable "docker_sha"  {
+  description = "The SHA from the docker build"
+  type = string
+  default = ""
+}
 
 
 # No longer need this, using dockerhub repo
@@ -46,6 +51,7 @@ resource "aws_ecs_task_definition" "cpuchecker_task" {
     {
       "name": "cpu-checker-task",
       "image": "mcguinnessa/demo-cpu-checker",
+      "image_disgest": "${var.docker_sha}",
       "essential": true,
       "memory": 512,
       "cpu": 256,
