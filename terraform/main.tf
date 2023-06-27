@@ -51,7 +51,7 @@ resource "aws_ecs_task_definition" "cpuchecker_task" {
     {
       "name": "cpu-checker-task",
       "image": "mcguinnessa/demo-cpu-checker",
-      "image_disgest": "${var.docker_sha}",
+      "image_digest": "${var.docker_sha}",
       "essential": true,
       "memory": 512,
       "cpu": 256,
