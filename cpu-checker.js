@@ -4,11 +4,11 @@ const {MongoClient} = require('mongodb');
 const DAY_S = 24 * 60 * 60;
 const DAY_MS = DAY_S * 1000;
 const HOUR_MS = 60 * 60 * 1000;
-const INTERVAL_S = 10 * 60;
+const INTERVAL_S = 60 * 60;
 const INTERVAL_MS = INTERVAL_S * 1000;
 
-const max_cpu = 40;
-const min_cpu = 2;
+const max_cpu = 99;
+const min_cpu = 4;
 
 //nst hourly_weighting = [1, 2, 3, 4, 5, 6, 7, 8, 9 10, 11, 12, 13, 14 ,15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
 const hourly_weighting = [1, 2, 1, 1, 1, 1, 2, 2, 5,  7,  8,  9, 10, 10, 10,  9,  7,  5,  5,  5,  5,  3,  2,  1]
@@ -22,12 +22,14 @@ function sleep(ms) {
 
 async function getValue(a_timestamp){
   var record_hour = a_timestamp.getHours();
-  weighting = hourly_weighting[record_hour];
+  weighting = hourly_weighting[record_hour % 24];
 
-  const ceiling = (max_cpu / 10) * weighting;
-  var cpu_usage = min_cpu + Math.floor(Math.random() * ceiling);
+//  const ceiling = (max_cpu / 10) * weighting;
+//  var cpu_usage = min_cpu + Math.floor(Math.random() * ceiling);
+  cpu_usage = min_cpu + Math.floor(Math.random() * (((max_cpu - min_cpu) / 10) * weighting))
 
-  console.log("TIME:" + a_timestamp + " HOUR:" + record_hour + " WEIGHTING:" + weighting + " CEILING:" + ceiling + " CPU:" + cpu_usage);
+  //console.log("TIME:" + a_timestamp + " HOUR:" + record_hour + " WEIGHTING:" + weighting + " CEILING:" + ceiling + " CPU:" + cpu_usage);
+  console.log("TIME:" + a_timestamp + " HOUR:" + record_hour + " WEIGHTING:" + weighting + " CPU:" + cpu_usage);
   return cpu_usage;
 }
 
@@ -43,40 +45,18 @@ async function run(){
     const database = client.db(db_tools.DB_NAME);
     const metric_record = database.collection(db_tools.COLLECTION_NAME);
     var now = new Date();
-    //var now_ms = now.getTime();
 
-    //Remove all records 
-//    metric_record.updateMany(
-//      { },
-//      { $unset: { cpuUsage: "" } }
-//    )
-    //const d_res = await metric_record.deleteMany({timestamp : {$gt : now_ms} })
-    //const d_res = await metric_record.deleteMany({timestamp : {$gt : now} })
-    //const d_res1 = await metric_record.deleteMany({"date": {$type: "string"}})
-    //const d_res1 = await metric_record.deleteMany({})
-    //console.log("Delete:" + d_res1.result.n);
-//    const d_res2 = await metric_record.deleteMany({"$and": [{timestamp: {"$lt": now }}, { "cpuUsage": {$exists : true } }] })
-//    console.log("Delete:" + d_res2.deletedCount);
+    const d_res = await metric_record.deleteMany({"$and": [{timestamp: {"$lt": now }}, { "cpuUsage": {$exists : true } }]} )
+    console.log("Delete:" + d_res.deletedCount);
 
-
-    metric_record.deleteMany({"$and": [{timestamp: {"$lt": now }}, { "cpuUsage": {$exists : true } }]} , (err, d_res) => {
-      if (err) throw err;
-      console.log("Delete:" + d_res.deleteCount);
-    })
-    //console.log("Delete:" + d_res2.deletedCount);
-
-
-//    metric_record.deleteMany({timestamp:{$lt : now}}, (err, d_res) => {
+//    metric_record.deleteMany({"$and": [{timestamp: {"$lt": now }}, { "cpuUsage": {$exists : true } }]} , (err, d_res) => {
 //      if (err) throw err;
-//      console.log("Delete:" + d_res.result.n);
-//    });
+//      console.log("Delete:" + d_res.deleteCount);
+//    })
 
-
-    //var yesterday = new Date(now_ms - DAY_MS);
-    //var yesterday = new Date(now - DAY_S);
-    var yesterday = new Date(now - DAY_MS);
-    var date_record = yesterday;
-    console.log("Yesterday:" + yesterday)
+    var last_week = new Date(now - (DAY_MS * 7));
+    var date_record = last_week;
+    console.log("Last Week:" + last_week)
 
     while (date_record <= now){
 
@@ -94,7 +74,7 @@ async function run(){
       }  
 
       const result = await metric_record.insertOne(doc);
-      console.log(`A document was inserted with the _id: ${result.insertedId}` + " CPU:" + cpu_usage);
+//      console.log(`A document was inserted with the _id: ${result.insertedId}` + " CPU:" + cpu_usage);
       //date_record = new Date(date_record.getTime() + INTERVAL_MS);
 	    
       date_record = new Date(date_record.getTime() + INTERVAL_MS);
