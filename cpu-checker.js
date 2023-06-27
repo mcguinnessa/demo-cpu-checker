@@ -7,8 +7,8 @@ const HOUR_MS = 60 * 60 * 1000;
 const INTERVAL_S = 60 * 60;
 const INTERVAL_MS = INTERVAL_S * 1000;
 
-const max_cpu = 40;
-const min_cpu = 2;
+const max_cpu = 99;
+const min_cpu = 4;
 
 //nst hourly_weighting = [1, 2, 3, 4, 5, 6, 7, 8, 9 10, 11, 12, 13, 14 ,15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
 const hourly_weighting = [1, 2, 1, 1, 1, 1, 2, 2, 5,  7,  8,  9, 10, 10, 10,  9,  7,  5,  5,  5,  5,  3,  2,  1]
@@ -24,10 +24,12 @@ async function getValue(a_timestamp){
   var record_hour = a_timestamp.getHours();
   weighting = hourly_weighting[record_hour % 24];
 
-  const ceiling = (max_cpu / 10) * weighting;
-  var cpu_usage = min_cpu + Math.floor(Math.random() * ceiling);
+//  const ceiling = (max_cpu / 10) * weighting;
+//  var cpu_usage = min_cpu + Math.floor(Math.random() * ceiling);
+  cpu_usage = min_cpu + Math.floor(Math.random() * (((max_cpu - min_cpu) / 10) * weighting))
 
-  console.log("TIME:" + a_timestamp + " HOUR:" + record_hour + " WEIGHTING:" + weighting + " CEILING:" + ceiling + " CPU:" + cpu_usage);
+  //console.log("TIME:" + a_timestamp + " HOUR:" + record_hour + " WEIGHTING:" + weighting + " CEILING:" + ceiling + " CPU:" + cpu_usage);
+  console.log("TIME:" + a_timestamp + " HOUR:" + record_hour + " WEIGHTING:" + weighting + " CPU:" + cpu_usage);
   return cpu_usage;
 }
 
@@ -72,7 +74,7 @@ async function run(){
       }  
 
       const result = await metric_record.insertOne(doc);
-      console.log(`A document was inserted with the _id: ${result.insertedId}` + " CPU:" + cpu_usage);
+//      console.log(`A document was inserted with the _id: ${result.insertedId}` + " CPU:" + cpu_usage);
       //date_record = new Date(date_record.getTime() + INTERVAL_MS);
 	    
       date_record = new Date(date_record.getTime() + INTERVAL_MS);
