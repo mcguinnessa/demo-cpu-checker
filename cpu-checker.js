@@ -9,6 +9,10 @@ const INTERVAL_MS = INTERVAL_S * 1000;
 
 const max_cpu = 99;
 const min_cpu = 4;
+const normal_high = 21;
+const spike_norm = 30;
+const spike_peak = 70;
+
 
 //nst hourly_weighting = [1, 2, 3, 4, 5, 6, 7, 8, 9 10, 11, 12, 13, 14 ,15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
 const hourly_weighting = [1, 2, 1, 1, 1, 1, 2, 2, 5,  7,  8,  9, 10, 10, 10,  9,  7,  5,  5,  5,  5,  3,  2,  1]
@@ -24,14 +28,45 @@ async function getValue(a_timestamp){
   var record_hour = a_timestamp.getHours();
   weighting = hourly_weighting[record_hour % 24];
 
-//  const ceiling = (max_cpu / 10) * weighting;
-//  var cpu_usage = min_cpu + Math.floor(Math.random() * ceiling);
-  cpu_usage = min_cpu + Math.floor(Math.random() * (((max_cpu - min_cpu) / 10) * weighting))
+  var spike = 0;
+//  if (spike == 0 ) {
+  rand = Math.floor(Math.random() * 100)
+  if (95 <= rand){
+    console.log("Spike CPU");
+    spike = Math.floor(Math.random() * spike_norm)
+  } else if (1 >= rand){
+    console.log("High Spike CPU");
+    spike = Math.floor(Math.random() * spike_peak)
+  }
 
-  //console.log("TIME:" + a_timestamp + " HOUR:" + record_hour + " WEIGHTING:" + weighting + " CEILING:" + ceiling + " CPU:" + cpu_usage);
-  console.log("TIME:" + a_timestamp + " HOUR:" + record_hour + " WEIGHTING:" + weighting + " CPU:" + cpu_usage);
+//  } else if (spike > 0){
+//     spike = 0 - spike;
+//  } else {
+//     spike = 0
+//  }
+  cpu_usage = min_cpu + (Math.floor(Math.random() * (((normal_high - min_cpu) / 10 ) * weighting)))
+  cpu_usage += spike
+
+  if (cpu_usage > max_cpu) {cpu_usage = max_cpu;}
+  if (cpu_usage < min_cpu) {cpu_usage = min_cpu;}
+
+  console.log("TIME:" + a_timestamp + " HOUR:" + record_hour + " WEIGHTING:" + weighting +" SPIKE:" + spike + " CPU:" + cpu_usage);
   return cpu_usage;
 }
+
+
+//async function getValue(a_timestamp){
+//  var record_hour = a_timestamp.getHours();
+//  weighting = hourly_weighting[record_hour % 24];
+//
+////  const ceiling = (max_cpu / 10) * weighting;
+////  var cpu_usage = min_cpu + Math.floor(Math.random() * ceiling);
+//  cpu_usage = min_cpu + Math.floor(Math.random() * (((max_cpu - min_cpu) / 10) * weighting))
+//
+//  //console.log("TIME:" + a_timestamp + " HOUR:" + record_hour + " WEIGHTING:" + weighting + " CEILING:" + ceiling + " CPU:" + cpu_usage);
+//  console.log("TIME:" + a_timestamp + " HOUR:" + record_hour + " WEIGHTING:" + weighting + " CPU:" + cpu_usage);
+//  return cpu_usage;
+//}
 
 async function run(){
 
