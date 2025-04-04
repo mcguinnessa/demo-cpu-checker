@@ -166,7 +166,8 @@ resource "aws_security_group" "cpuchecker_service_security_group" {
     # Only allowing traffic in from the load balancer security group
     #security_groups = ["${aws_security_group.load_balancer_security_group.id}"]
 #    security_groups = ["sg-039063a37c674e76b"]
-    security_groups = ["sg-0171f41902e1d2b44"]
+#    security_groups = ["sg-0171f41902e1d2b44"]
+    security_groups = ["devops-demo-be-sg"]
 
 
   }
